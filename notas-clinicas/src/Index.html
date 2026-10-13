@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<base target="_top">
+<meta charset="utf-8">
+<style>
+  body{font-family:system-ui,sans-serif;margin:0;padding:16px;max-width:720px;margin-inline:auto}
+  label{display:block;font-weight:600;margin:12px 0 4px}
+  select,textarea,button{width:100%;font-size:16px;padding:10px;box-sizing:border-box}
+  textarea{min-height:120px}#nota{min-height:320px;font-family:ui-monospace,monospace}
+  button{margin-top:12px;cursor:pointer}#falt{color:#b45309;white-space:pre-wrap;margin-top:8px}
+</style>
+</head>
+<body>
+<h2>Notas clínicas</h2>
+<label>Servicio</label><select id="servicio"></select>
+<label>Flujo</label><select id="flujo"></select>
+<label>Previo</label><textarea id="previo"></textarea>
+<label>Hoy</label><textarea id="hoy"></textarea>
+<button id="gen">Generar</button>
+<div id="falt"></div>
+<label>Nota</label><textarea id="nota"></textarea>
+<button id="copiar">Copiar</button>
+<script>
+var P=[];
+function $(i){return document.getElementById(i)}
+function llenar(sel,vals){sel.innerHTML=vals.map(function(v){return '<option>'+v+'</option>'}).join('')}
+function flujos(){
+  var s=$('servicio').value;
+  llenar($('flujo'),P.filter(function(p){return p.servicio===s}).map(function(p){return p.flujo}));
+}
+google.script.run.withSuccessHandler(function(l){
+  P=l;llenar($('servicio'),l.map(function(p){return p.servicio}).filter(function(v,i,a){return a.indexOf(v)===i}));flujos();
+}).listarPlantillas();
+$('servicio').onchange=flujos;
+$('gen').onclick=function(){
+  var p=P.filter(function(x){return x.servicio===$('servicio').value&&x.flujo===$('flujo').value})[0];
+  $('gen').disabled=true;$('gen').textContent='Generando…';
+  google.script.run.withSuccessHandler(function(r){
+    $('nota').value=r.nota;$('falt').textContent=r.datosFaltantes;
+    $('gen').disabled=false;$('gen').textContent='Generar';
+  }).withFailureHandler(function(e){
+    alert(e.message);$('gen').disabled=false;$('gen').textContent='Generar';
+  }).generarNota(p.id,$('previo').value,$('hoy').value);
+};
+$('copiar').onclick=function(){navigator.clipboard.writeText($('nota').value)};
+</script>
+</body>
+</html>
