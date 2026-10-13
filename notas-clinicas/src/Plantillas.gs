@@ -46,7 +46,7 @@ function listarPlantillas() {
       servicio: String(col_(f, ['Servicio'])),
       flujo: String(col_(f, ['Flujo'])),
       nombre: String(col_(f, ['Nombre'])),
-      camposHoy: String(col_(f, ['Campos HOY']))
+      camposHoy: String(col_(f, ['Campos HOY (guía)', 'Campos HOY']))
     };
   });
 }
@@ -75,7 +75,7 @@ function ensamblarPrompt_(plantillaId, previo, hoy) {
 
   var cfg = mapaConfig_();
   var reglas = leerHoja_('Reglas')
-    .map(function (f) { return String(col_(f, ['Regla', 'Texto', 'Contenido'])); })
+    .map(function (f) { return String(col_(f, ['Texto (aplica a todas las notas)', 'Texto', 'Regla'])); })
     .filter(String).join('\n- ');
 
   var modulos = leerHoja_('Modulos');
